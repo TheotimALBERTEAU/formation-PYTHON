@@ -61,13 +61,69 @@ class Ligne:
             x += dx
             y += dy
 
+class Parallelogramme:
+    def __init__(self, a, b, c):
+        self.a = a
+        self.b = b
+        self.c = c
+
+        self.x = c.x + (b.x - a.x)
+        self.y = c.y + (b.y - a.y)
+        self.d = Point(self.x, self.y)
+
+    def draw(self, paint):
+        ab = Ligne(self.a, self.b)
+        ac = Ligne(self.a, self.c)
+        cd = Ligne(self.c, self.d)
+        bd = Ligne(self.b, self.d)
+
+        ab.draw(paint)
+        ac.draw(paint)
+        cd.draw(paint)
+        bd.draw(paint)
+
+class Triangle:
+    def __init__(self, a : Point, b : Point, c : Point):
+        self.a = a
+        self.b = b
+        self.c = c
+
+    def draw(self, paint):
+        ab = Ligne(self.a, self.b)
+        ac = Ligne(self.a, self.c)
+        bc = Ligne(self.b, self.c)
+
+        ab.draw(paint)
+        ac.draw(paint)
+        bc.draw(paint)
+
+class RectangleTriangle:
+    def __init__(self, a : Point, b : Point, angle : int):
+        self.a = a
+        self.b = b
+        self.angle = math.radians(angle)
+
+        self.ab = Ligne(self.a, self.b)
+        self.bc = self.ab.get_length()/math.cos(self.angle)
+        self.ac = self.bc * math.sin(self.angle)
+
+        self.x = self.a.x + self.ac * (self.b.y - self.a.y)/self.ab.get_length()
+        self.y = self.a.y + self.ac * (self.b.x - self.a.x)/self.ab.get_length()
+        self.c = Point(self.x, self.y)
+
+        self.triangle = Triangle(self.a, self.b, self.c)
+
 paint = Paint()
 
 #### Début du sujet
 ### Définition de classes ici
+a = Point(100, 100)
+b = Point(300, 100)
+c = Point(100, 300)
 
 ### Instanciation d'objets géométriques ici
-
+test = RectangleTriangle(a, b, 65)
+test.triangle.draw(paint)
 ###
 
 paint.show()
