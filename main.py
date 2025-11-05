@@ -22,4 +22,4 @@ trie = list(range(-40, 41))
 translated_list = list(range(Translate(trie, 0), Translate(trie, 1) + 1))
 # print(FusionSort(non_trie))
 
-Optimisation(10000000)
+Optimisation(100)

@@ -5,7 +5,7 @@ plage = list(range(0, 41))
 
 def Optimisation(N):
     gen = 0
-    NDIM = 1000
+    NDIM = 5
     all_cells = []
     best_cell = Cell(list(random.random() for _ in range(NDIM)), NDIM, plage)
     best_cell.apply()

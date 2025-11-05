@@ -10,9 +10,9 @@ class Cell:
         self.plage_valeurs = plage_valeurs
 
     def apply(self):
-        translated_genome = []
-        for i in self.genome:
-            translated_genome.append(Translate(self.plage_valeurs, i))
+        translated_genome = [
+            Translate(self.plage_valeurs, gene_value) for gene_value in self.genome
+        ]
         self.output = (Ackley(translated_genome))
         return self.output
 
