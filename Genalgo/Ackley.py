@@ -1,5 +1,7 @@
+from Genalgo.Decorators.InputTranslate import input_translate
 import math
 
+@input_translate
 def Ackley(n):
     S = 0
     for x in range(len(n)):

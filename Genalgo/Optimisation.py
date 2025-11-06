@@ -1,32 +1,33 @@
 from Genalgo.Classes.Cell import Cell
-import random
 
-plage = list(range(0, 41))
-
-def Optimisation(N):
-    gen = 0
-    NDIM = 5
+def Optimisation():
     all_cells = []
-    best_cell = Cell(list(random.random() for _ in range(NDIM)), NDIM, plage)
-    best_cell.apply()
+    PCT_BEST = 20
+    NCELL = 100
 
-    for i in range(N):
+    for _ in range(NCELL):
+        all_cells.append(Cell())
+
+    gen = 0
+    while True:
+        for cell in all_cells:
+            cell.apply()
+
+        trie = sorted(all_cells, key=lambda inp: inp.output)
+        print(f"GEN {gen} SCORE {trie[0].output} GENOME {trie[0].genome}")
+
+        ncut = NCELL * (PCT_BEST / 100)
+
+        all_cells = trie[:int(ncut)]
+
+        parent = 0
+        while len(all_cells) < NCELL:
+            cellule_parent = all_cells[parent]
+            parent += 1
+            if parent >= ncut:
+                parent = 0
+            child = cellule_parent.child()
+            all_cells.append(child)
+
         gen += 1
-        cell = Cell(list(random.random() for _ in range(NDIM)), NDIM, plage)
-        cell.apply()
-        cell.genome.sort()
-
-        all_cells.append(cell)
-
-        if cell.output < best_cell.output:
-            best_cell = cell
-            best_cell.output = cell.output
-
-        print(f"GENERATION {gen}, MINIMUM : {all_cells[0].output}, MEILLEUR GENOME : {best_cell.genome}")
-
-
-    all_cells = sorted(all_cells, key=lambda c: c.genome)
-    all_cells[:int(N * 0.2)]
-
-    while len(all_cells) < N:
-        all_cells.append(best_cell.child())
+        assert len(all_cells) == NCELL
