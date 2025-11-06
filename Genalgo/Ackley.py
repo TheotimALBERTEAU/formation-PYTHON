@@ -2,15 +2,15 @@ from Genalgo.Decorators.InputTranslate import input_translate
 import math
 
 @input_translate
-def Ackley(n):
+def ackley(n, **fct_cfg):
     S = 0
     for x in range(len(n)):
         S += n[x] ** 2
     S = 1/len(n) * S
     T = 0
     for x in range(len(n)):
-        T += math.cos((2*math.pi)*n[x])
+        T += math.cos(fct_cfg['c']*n[x])
     T = 1/len(n) * T
 
-    U = -20 * math.exp(-0.2 * math.sqrt(S)) - math.exp(T) + 20 + math.exp(1)
+    U = -fct_cfg['a'] * math.exp(-fct_cfg['b'] * math.sqrt(S)) - math.exp(T) + fct_cfg['a'] + math.exp(1)
     return U

@@ -7,7 +7,7 @@ YMIN=0
 XOPTI=0
 
 PCT_BEST = 35
-NCELL = 2000
+NCELL = 10000
 
 import random
 import math

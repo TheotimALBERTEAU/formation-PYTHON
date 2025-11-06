@@ -1,11 +1,9 @@
-from Genalgo.Translate import Translate
-
 def input_translate(func):
-    def wrapper(genome):
+    def wrapper(genome, **fct_cfg):
         inputs = []
         for gene in genome:
-            inputs.append(Translate(genome, gene))
+            inputs.append((fct_cfg['higher'] - fct_cfg['lower']) * gene + fct_cfg['lower'])
 
-        return func(inputs)
+        return func(inputs, **fct_cfg)
 
     return wrapper

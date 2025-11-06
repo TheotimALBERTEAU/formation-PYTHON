@@ -1,25 +1,18 @@
-from Genalgo.Translate import Translate
-from Genalgo.Ackley import Ackley
 import copy, random
 
 class Cell:
-    def __init__(self):
-        self.NDIM = 10
+    def __init__(self, fonction, **fct_cfg):
+        self.NDIM = 5
         self.genome = list(random.random() for _ in range(self.NDIM))
         self.output = []
-
-    def trad(self, genome):
-        inputs = []
-        for gene in self.genome:
-            inputs.append(Translate(self.genome, gene))
-        return inputs
+        self.fonction = fonction
+        self.fct_cfg = fct_cfg
 
     def apply(self):
-        # inputs = self.trad(self.genome)
-        self.output = Ackley(self.genome)
+        self.output = self.fonction(self.genome, **self.fct_cfg)
 
     def child(self):
-        enfant = Cell()
+        enfant = Cell(self.fonction, **self.fct_cfg)
         enfant.genome = self.genome.copy()
         n = random.randrange(0, len(enfant.genome))
         enfant.genome[n] = random.random()

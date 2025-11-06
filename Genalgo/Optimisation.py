@@ -1,12 +1,12 @@
 from Genalgo.Classes.Cell import Cell
 
-def Optimisation():
+def optimisation(fonction, **fct_cfg):
     all_cells = []
     PCT_BEST = 20
-    NCELL = 100
+    NCELL = 10000
 
     for _ in range(NCELL):
-        all_cells.append(Cell())
+        all_cells.append(Cell(fonction, **fct_cfg))
 
     gen = 0
     while True:
@@ -31,3 +31,4 @@ def Optimisation():
 
         gen += 1
         assert len(all_cells) == NCELL
+        input()
