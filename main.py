@@ -1,4 +1,6 @@
 import math
+import threading
+import time
 from Functions.Fibonacci import Fibonacci
 from Functions.Calculator import Calculator
 from Functions.Pendu import Pendu
@@ -12,6 +14,8 @@ from Genalgo.Optimisation import optimisation
 from Genalgo.Decorators.InputTranslate import input_translate
 from Genalgo.Salomon import salomon
 from Genalgo.Ackley import ackley
+from Genalgo.Classes.Dish import Dish
+from queue import Queue, Empty
 
 # <editor-fold desc="Test des fonctions">
 # print(Fibonacci(10))
@@ -48,5 +52,29 @@ salomon_fct_cfg = {
     'higher': 5,
     'lower': -5
 }
+try:
+    event = threading.Event()
+    event.clear()
 
-optimisation(functions['salomon'], **salomon_fct_cfg)
+    queue = Queue()
+
+    dish = Dish(functions['ackley'], 5, 20, 10000, event, queue, **ackley_fct_cfg)
+
+    time.sleep(2)
+
+    event.set()
+
+    tstart = time.time()
+    while (time.time() - tstart) < 10:
+        try:
+            data = queue.get()
+        except Empty:
+            pass
+
+    event.clear()
+    print(f"gen : {data['nb_gen']} - SCORE: {data['best_output']} - BEST GENOME {data['best_genome']}")
+except KeyboardInterrupt:
+    event.clear()
+    dish.join()
+
+dish.join()
