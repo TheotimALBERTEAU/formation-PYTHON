@@ -1,9 +1,9 @@
-import time
 from Genalgo.Classes.Cell import Cell
-from threading import Thread
-from queue import Queue, Empty
+from concurrent.futures import ThreadPoolExecutor
+import os
+from multiprocessing import Process, Event, Queue
 
-class Dish(Thread):
+class Dish(Process):
     def __init__(self, fonction, ndim, pct_best, ncell, event, queue : Queue, **fct_cfg):
 
         super().__init__()
@@ -19,14 +19,17 @@ class Dish(Thread):
         self.gen = 0
         self.all_cells = []
 
+        self.NB_CORES = os.cpu_count()
+        self.executor = ThreadPoolExecutor(max_workers=self.NB_CORES)
+
         for _ in range(self.NCELL):
             self.all_cells.append(Cell(self.fonction, self.NDIM, **self.fct_cfg))
 
-        self.start()
-
     def new_gen(self):
-        for cell in self.all_cells:
-            cell.apply()
+        futures = [self.executor.submit(cell.apply) for cell in self.all_cells]
+
+        for future in futures:
+            future.result()
 
         trie = sorted(self.all_cells, key=lambda inp: inp.output)
 
@@ -57,11 +60,9 @@ class Dish(Thread):
         assert len(self.all_cells) == self.NCELL
 
     def run(self):
-        print("Init Dish")
         self.Event.wait()
 
-        print("Event set, Simulation Start")
         while self.Event.is_set():
             self.new_gen()
 
-        print("Arret de Dish")
+        self.executor.shutdown(wait=False)

@@ -1,4 +1,7 @@
+import functools
+
 def input_translate(func):
+    @functools.wraps(func)
     def wrapper(genome, **fct_cfg):
         inputs = []
         for gene in genome:

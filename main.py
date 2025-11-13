@@ -16,6 +16,10 @@ from Genalgo.Salomon import salomon
 from Genalgo.Ackley import ackley
 from Genalgo.Classes.Dish import Dish
 from queue import Queue, Empty
+import multiprocessing
+from multiprocessing import Process, Event, Queue # Modifier les imports
+from multiprocessing import Process, Event, Queue
+from concurrent.futures import ThreadPoolExecutor
 
 # <editor-fold desc="Test des fonctions">
 # print(Fibonacci(10))
@@ -52,29 +56,67 @@ salomon_fct_cfg = {
     'higher': 5,
     'lower': -5
 }
+
+configurations = [
+    {'fonction': functions['ackley'], 'ndim': 3, 'pct_best': 30, 'ncell': 500, 'cfg': ackley_fct_cfg,
+     'name': 'Ackley_Slow'},
+
+    {'fonction': functions['salomon'], 'ndim': 10, 'pct_best': 20, 'ncell': 5000, 'cfg': salomon_fct_cfg,
+     'name': 'Salomon'},
+
+    {'fonction': functions['ackley'], 'ndim': 5, 'pct_best': 20, 'ncell': 1000, 'cfg': ackley_fct_cfg,
+     'name': 'Ackley_Fast'},
+]
+
+duree_exec = 60
+event = multiprocessing.Event()
+event.clear()
+
+dishes = []
+queues = []
+
 try:
-    event = threading.Event()
-    event.clear()
+    print("Prepa dishs")
+    for i, cfg in enumerate(configurations):
+        queue = multiprocessing.Queue()
+        queues.append(queue)
 
-    queue = Queue()
+        dish = Dish(
+            cfg['fonction'],
+            cfg['ndim'],
+            cfg['pct_best'],
+            cfg['ncell'],
+            event,
+            queue,
+            **cfg['cfg'],
+        )
+        dishes.append(dish)
+        print(f"[{cfg['name']}] prêt. NDIM={cfg['ndim']}, NCELL={cfg['ncell']}")
 
-    dish = Dish(functions['ackley'], 5, 20, 10000, event, queue, **ackley_fct_cfg)
+    print("Demarrage threads")
+    for dish in dishes:
+        dish.start()
 
     time.sleep(2)
-
     event.set()
+    print("Lancement des simus")
 
     tstart = time.time()
-    while (time.time() - tstart) < 10:
-        try:
-            data = queue.get()
-        except Empty:
-            pass
+    while (time.time() - tstart) < duree_exec:
+        for i, q in enumerate(queues):
+            try:
+                data = q.get(timeout=0.1)
+                name = configurations[i]['name']
+                print(f"[RES - {name}] Gen: {data['nb_gen']} | Score: {data['best_output']}")
 
+            except Empty:
+                pass
     event.clear()
-    print(f"gen : {data['nb_gen']} - SCORE: {data['best_output']} - BEST GENOME {data['best_genome']}")
 except KeyboardInterrupt:
     event.clear()
-    dish.join()
 
-dish.join()
+finally:
+    for dish in dishes:
+        if dish.is_alive():
+            dish.join()
+    print("Fermeture des threads")
